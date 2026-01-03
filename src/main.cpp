@@ -1,109 +1,65 @@
 #include "lexer.h"
 #include "ast.h"
+#include "parser.h"
 #include <iostream>
-#include <vector>
-#include <memory>
 
-void testAST() {
-	std::cout << "=== Testing AST Construction  ===\n\n";
+// TBD: write real tests
+void testParser() {
+	std::cout << "=== Testing Parser ===\n\n";
 
-	// Test 1: Simple integer
-	std::cout << "Test 1: Integer(42)\n";
-	auto int_node = std::make_unique<IntegerNode>(42);
-	int_node->print();
+	// test 1: simple expression
+	std::cout << "Test 1: 2 + 3\n";
+	std::string code1 = "2 + 3";
+	Lexer lexer1(code1);
+	std::vector<Token> tokens1 = lexer1.tokenize();
+	Parser parser1(tokens1);
+	auto ast1 = parser1.parse();
+	ast1->print();
 	std::cout << "\n";
 
-	// Test 2: Binary operation: 5 + 3
-	std::cout << "Test 2: 5 + 3\n";
-	auto add_node = std::make_unique<BinaryOpNode>(
-		BinaryOp::ADD,
-		std::make_unique<IntegerNode>(5),
-		std::make_unique<IntegerNode>(3)
-	);
-	add_node->print();
+	// test 2: assignment
+	std::cout << "Test 2: x = 5 + 3\n";
+	std::string code2 = "x = 5 + 3";
+	Lexer lexer2(code2);
+	std::vector<Token> tokens2 = lexer2.tokenize();
+	Parser parser2(tokens2);
+	auto ast2 = parser2.parse();
+	ast2->print();
 	std::cout << "\n";
 
-	// Test 3: Complex expression: 2 + 3 * 4 
-	std::cout << "Test 3: 2 + 3 * 4 (with correct precedence)\n";
-	auto complex_expr = std::make_unique<BinaryOpNode>(
-		BinaryOp::ADD,
-		std::make_unique<IntegerNode>(2),
-		std::make_unique<BinaryOpNode>(
-			BinaryOp::MUL,
-			std::make_unique<IntegerNode>(3),
-			std::make_unique<IntegerNode>(4)
-		)
-	);
-	complex_expr->print();
+	// test 3: complex expression with precedence
+	std::cout << "Test 3: 2 + 3 * 4\n";
+	std::string code3 = "2 + 3 * 4";
+	Lexer lexer3(code3);
+	std::vector<Token> tokens3 = lexer3.tokenize();
+	Parser parser3(tokens3);
+	auto ast3 = parser3.parse();
+	ast3->print();
 	std::cout << "\n";
 
-	// Test 4: Assignment: x = 10
-	std::cout << "Test 4: x = 10\n";
-	auto assign_node = std::make_unique<AssignmentNode>(
-		"x",
-		std::make_unique<IntegerNode>(10)
-	);
-	assign_node->print();
+	// test 4: print statement
+	std::cout << "Test 4: print(42)\n";
+	std::string code4 = "print(42)";
+	Lexer lexer4(code4);
+	std::vector<Token> tokens4 = lexer4.tokenize();
+	Parser parser4(tokens4);
+	auto ast4 = parser4.parse();
+	ast4->print();
 	std::cout << "\n";
 
-	// Test 5: Assignment with expression: result = 5 + 3
-	auto assign_expr = std::make_unique<AssignmentNode>(
-		"result",
-		std::make_unique<BinaryOpNode>(
-			BinaryOp::ADD,
-			std::make_unique<IntegerNode>(5),
-			std::make_unique<IntegerNode>(3)
-		)
-	);
-	assign_expr->print();
-	std::cout << "\n";
-
-	// Test 6: Print statement
-	std::cout << "Test 6: print(42)\n";
-	auto print_node = std::make_unique<PrintNode>(
-		std::make_unique<IntegerNode>(42)
-	);
-	print_node->print();
-	std::cout << "\n";
-
-	// Test 7: Full program
-	std::cout << "Test 7: Full program\n";
-	std::cout << "x = 5\n";
-	std::cout << "y = 10\n";
-	std::cout << "z = x + y\n";
-	std::cout << "print(z)\n\n";
-
-	auto program = std::make_unique<ProgramNode>();
-
-	program->addStatement(std::make_unique<AssignmentNode>(
-		"x",
-		std::make_unique<IntegerNode>(5)
-	));
-
-	program->addStatement(std::make_unique<AssignmentNode>(
-		"y",
-		std::make_unique<IntegerNode>(10)
-	));
-
-	program->addStatement(std::make_unique<AssignmentNode>(
-		"z",
-		std::make_unique<BinaryOpNode>(
-			BinaryOp::ADD,
-			std::make_unique<IdentifierNode>("x"),
-			std::make_unique<IdentifierNode>("y")
-		)
-	));
-
-	program->addStatement(std::make_unique<PrintNode>(
-		std::make_unique<IdentifierNode>("z")
-	));
-
-	program->print();
-
+	// test 5: full program
+	std::cout << "Test 5: Full program\n";
+	std::string code5 = "x = 5\ny = 10\nz = x + y\nprint(z)";
+	Lexer lexer5(code5);
+	std::vector<Token> tokens5 = lexer5.tokenize();
+	Parser parser5(tokens5);
+	auto ast5 = parser5.parse();
+	ast5->print();
 }
 
+
 int main() {
-	testAST();
+	testParser();
 	return 0;
 
 	// testing lexer works:
