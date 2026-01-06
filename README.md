@@ -24,6 +24,7 @@
 - C++ compiler with C++17 support (g++, clang++)
 - CMake 3.10 or higher
 - Git
+- Make
 
 ## Building the Compiler
 ```
