@@ -58,9 +58,9 @@ void testParser() {
 }
 
 
-int main() {
-	testParser();
-	return 0;
+//int main() {
+//	testParser();
+//	return 0;
 
 	// testing lexer works:
 	//std::string code = "x = 5 + 3";
@@ -72,4 +72,4 @@ int main() {
 	//}
 	//
 	//return 0;
-}
+//}

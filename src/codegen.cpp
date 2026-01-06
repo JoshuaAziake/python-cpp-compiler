@@ -27,7 +27,7 @@ void CodeGenerator::emitLine(const std::string& code) {
 	output << getIndent() << code << "\n";
 }
 
-void codeGenerator::increaseIndent() {
+void CodeGenerator::increaseIndent() {
 	indentLevel++;
 }
 
@@ -72,7 +72,7 @@ void CodeGenerator::generateStatement(const StmtNode& node) {
 	else if (const auto* print = dynamic_cast<const PrintNode*>(&node)) {
 		generatePrint(*print);
 	}
-	else if (const auto* exprStmt = dynamic_Cast<const ExprStmtNode*>(&node)) {
+	else if (const auto* exprStmt = dynamic_cast<const ExprStmtNode*>(&node)) {
 		generateExprStmt(*exprStmt);
 	}
 	else {
@@ -97,7 +97,7 @@ void CodeGenerator::generateAssignment(const AssignmentNode& node) {
 }
 
 void CodeGenerator::generatePrint(const PrintNode& node) {
-	std::string exprCoDE = expressionToString(*node.expression);
+	std::string exprCode = expressionToString(*node.expression);
 	emitLine("std::cout << " + exprCode + " << std::endl;");
 }
 

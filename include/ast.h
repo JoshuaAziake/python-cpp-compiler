@@ -57,6 +57,7 @@ public:
 
 	void print(int indent = 0) const override {
 		printIndent(indent);
+		std::cout << "Float(" << value << ")\n";
 	}
 };
 
