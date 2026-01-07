@@ -31,9 +31,6 @@ private:
 	// get current token without consuming it
 	const Token& currentToken() const;
 
-	// get token n positions ahead
-	const Token& peekToken(size_t n = 1) const;
-
 	// check if current token is of given type
 	bool check(TokenType type) const;
 

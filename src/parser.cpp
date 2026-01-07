@@ -11,14 +11,6 @@ const Token& Parser::currentToken() const {
 	return tokens[current];
 }
 
-const Token& Parser::peekToken(size_t n) const {
-	size_t pos = current + n;
-	if (pos >= tokens.size()) {
-		return tokens.back(); // Return EOF token
-	}
-	return tokens[pos];
-}
-
 bool Parser::check(TokenType type) const {
 	if (isAtEnd()) return type == TokenType::EOF_TOKEN;
 	return currentToken().type == type;
