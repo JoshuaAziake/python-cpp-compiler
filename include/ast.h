@@ -16,17 +16,12 @@ class ASTNode {
 public:
 	virtual ~ASTNode() = default;
 
-
 	// for debugging: print tree structure
 	virtual void print(int indent = 0) const = 0;
 
 protected:
 	// helper to print indentation
-	void printIndent(int indent) const {
-		for (int i = 0; i < indent; i++) {
-			std::cout << " ";
-		}
-	}
+	void printIndent(int indent) const;
 };
 
 // expression nodes (things that evaluate to a val)
@@ -40,12 +35,9 @@ class IntegerNode : public ExprNode {
 public:
 	int value;
 
-	explicit IntegerNode(int val) : value(val) {}
+	explicit IntegerNode(int val);
 
-	void print(int indent = 0) const override {
-		printIndent(indent);
-		std::cout << "Integer(" << value << ")\n";
-	}
+	void print(int indent = 0) const override;
 };
 
 // literal float: 3.14
@@ -53,12 +45,19 @@ class FloatNode : public ExprNode {
 public:
 	double value;
 
-	explicit FloatNode(double val) : value(val) {}
+	explicit FloatNode(double val);
 
-	void print(int indent = 0) const override {
-		printIndent(indent);
-		std::cout << "Float(" << value << ")\n";
-	}
+	void print(int indent = 0) const override;
+};
+
+// boolean literal: True or False
+class BooleanNode : public ExprNode {
+public:
+	bool value;
+
+	explicit BooleanNode(bool val);
+
+	void print(int indent = 0) const override;
 };
 
 // variable reference: x
@@ -66,12 +65,9 @@ class IdentifierNode : public ExprNode {
 public:
 	std::string name;
 
-	explicit IdentifierNode(const std::string& n) : name(n) {}
+	explicit IdentifierNode(const std::string& n);
 
-	void print(int indent = 0) const override {
-		printIndent(indent);
-		std::cout << "Identifier(" << name << ")\n";
-	}
+	void print(int indent = 0) const override;
 };
 
 enum class BinaryOp {
@@ -81,21 +77,18 @@ enum class BinaryOp {
 	DIV,
 	MOD,
 	POWER,
-	FLOOR_DIV
+	FLOOR_DIV,
+	EQUAL,
+	NOT_EQUAL,
+	LESS,
+	LESS_EQUAL,
+	GREATER,
+	GREATER_EQUAL,
+	AND,
+	OR
 };
 
-inline std::string binaryOpToString(BinaryOp op) {
-	switch (op) {
-		case BinaryOp::ADD: return "+";
-		case BinaryOp::SUB: return "-";
-		case BinaryOp::MUL: return "*";
-		case BinaryOp::DIV: return "/";
-		case BinaryOp::MOD: return "%";
-		case BinaryOp::POWER: return "**";
-		case BinaryOp::FLOOR_DIV: return "//";
-		default: return "?";
-	}
-}
+std::string binaryOpToString(BinaryOp op);
 
 class BinaryOpNode : public ExprNode {
 public:
@@ -103,17 +96,11 @@ public:
 	std::unique_ptr<ExprNode> left;
 	std::unique_ptr<ExprNode> right;
 
-	BinaryOpNode(BinaryOp operation, 
-		std::unique_ptr<ExprNode> l, 
-		std:: unique_ptr<ExprNode> r)
-		: op(operation), left(std::move(l)), right(std::move(r)) {}
+	BinaryOpNode(BinaryOp operation,
+		std::unique_ptr<ExprNode> l,
+		std::unique_ptr<ExprNode> r);
 
-	void print(int indent = 0) const override {
-		printIndent(indent);
-		std::cout << "BinaryOp(" << binaryOpToString(op) << ")\n";
-		left->print(indent + 1);
-		right->print(indent + 1);
-	}
+	void print(int indent = 0) const override;
 };
 
 enum class UnaryOp {
@@ -122,28 +109,16 @@ enum class UnaryOp {
 	NOT
 };
 
-inline std::string unaryOpToString(UnaryOp op) {
-	switch (op) {
-		case UnaryOp::NEGATE: return "-";
-		case UnaryOp::PLUS: return "+";
-		case UnaryOp::NOT: return "not";
-		default: return "?";
-	}
-}
+std::string unaryOpToString(UnaryOp op);
 
 class UnaryOpNode : public ExprNode {
 public:
 	UnaryOp op;
 	std::unique_ptr<ExprNode> operand;
 
-	UnaryOpNode(UnaryOp operation, std::unique_ptr<ExprNode> expr)
-		: op(operation), operand(std::move(expr)) {}
+	UnaryOpNode(UnaryOp operation, std::unique_ptr<ExprNode> expr);
 
-	void print(int indent = 0) const override {
-		printIndent(indent); 
-		std::cout << "UnaryOp(" << unaryOpToString(op) << ")\n";
-		operand->print(indent + 1);
-	}
+	void print(int indent = 0) const override;
 };
 
 // statement nodes (things that perform actions)
@@ -158,14 +133,9 @@ public:
 	std::string varName;
 	std::unique_ptr<ExprNode> value;
 
-	AssignmentNode(const std::string& name, std::unique_ptr<ExprNode> val)
-		: varName(name), value(std::move(val)) {}
+	AssignmentNode(const std::string& name, std::unique_ptr<ExprNode> val);
 
-	void print(int indent = 0) const override {
-		printIndent(indent);
-		std::cout << "Assignment(" << varName << ")\n";
-		value->print(indent + 1);
-	}
+	void print(int indent = 0) const override;
 };
 
 // print statement (e.g. print(x))
@@ -173,14 +143,9 @@ class PrintNode : public StmtNode {
 public:
 	std::unique_ptr<ExprNode> expression;
 
-	explicit PrintNode(std::unique_ptr<ExprNode> expr)
-		: expression(std::move(expr)) {}
+	explicit PrintNode(std::unique_ptr<ExprNode> expr);
 
-	void print(int indent = 0) const override {
-		printIndent(indent);
-		std::cout << "Print\n";
-		expression->print(indent + 1);
-	}
+	void print(int indent = 0) const override;
 };
 
 // expression statements, evaluate and discard (e.g. 2 + 3)
@@ -188,14 +153,9 @@ class ExprStmtNode : public StmtNode {
 public:
 	std::unique_ptr<ExprNode> expression;
 
-	explicit ExprStmtNode(std::unique_ptr<ExprNode> expr)
-		: expression(std::move(expr)) {}
+	explicit ExprStmtNode(std::unique_ptr<ExprNode> expr);
 
-	void print(int indent = 0) const override {
-		printIndent(indent);
-		std::cout << "ExprStmt\n";
-		expression->print(indent + 1);
-	}
+	void print(int indent = 0) const override;
 };
 
 // program: sequence of statements
@@ -203,17 +163,9 @@ class ProgramNode : public ASTNode {
 public:
 	std::vector<std::unique_ptr<StmtNode>> statements;
 
-	void addStatement(std::unique_ptr<StmtNode> stmt) {
-		statements.push_back(std::move(stmt));
-	}
+	void addStatement(std::unique_ptr<StmtNode> stmt);
 
-	void print(int indent = 0) const override {
-		printIndent(indent);
-		std::cout << "Program\n";
-		for (const auto& stmt : statements) {
-			stmt->print(indent + 1);
-		}
-	}
+	void print(int indent = 0) const override;
 };
 
 #endif
