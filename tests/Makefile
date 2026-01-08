@@ -20,9 +20,9 @@ TEST_CODEGEN = unit/test_codegen
 all: $(TEST_LEXER) $(TEST_PARSER) $(TEST_CODEGEN)
 
 # Build lexer tests
-$(TEST_LEXER): unit/test_lexer.cpp $(LEXER_SRC)
+$(TEST_LEXER): unit/test_lexer.cpp $(LEXER_SRC) $(PROJECT_DIR)/ast.cpp
 	@echo "Building lexer tests..."
-	$(CXX) $(CXXFLAGS) -o $(TEST_LEXER) unit/test_lexer.cpp $(LEXER_SRC) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $(TEST_LEXER) unit/test_lexer.cpp $(LEXER_SRC) $(PROJECT_DIR)/ast.cpp $(LDFLAGS)
 	@echo "Lexer tests compiled"
 
 # Build parser tests

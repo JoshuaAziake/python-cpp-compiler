@@ -86,8 +86,8 @@ std::string unaryOpToString(UnaryOp op) {
 }
 
 // UnaryOpNode
-UnaryOpNode::UnaryOpNode(UnaryOp operation, std::unique_ptr<ExprNode> expr,
-	: op(operation), operand(std::move(epxr)) {}
+UnaryOpNode::UnaryOpNode(UnaryOp operation, std::unique_ptr<ExprNode> expr)
+	: op(operation), operand(std::move(expr)) {}
 
 void UnaryOpNode::print(int indent) const {
 	printIndent(indent);
@@ -96,7 +96,7 @@ void UnaryOpNode::print(int indent) const {
 }
 
 // AssignmentNode
-AssignmentNode::AssignmentNode(const std::string& name, std::unique_ptr<ExprNode> val,
+AssignmentNode::AssignmentNode(const std::string& name, std::unique_ptr<ExprNode> val)
 	: varName(name), value(std::move(val)) {}
 
 void AssignmentNode::print(int indent) const {
