@@ -155,8 +155,91 @@ std::unique_ptr<StmtNode> Parser::expressionStatement() {
 }
 
 std::unique_ptr<ExprNode> Parser::expression() {
-	// expression -> term (("+" | "-") term)*
-	// this handles addition and subtraction (lowest precedence)
+	// expression -> logicalOr
+
+	return logicalOr();
+}
+
+std::unique_ptr<ExprNode> Parser::logicalOr() {
+	// logicalOr -> logicalAnd ( "or" logicalAnd )*
+	
+	auto left = logicalAnd();
+
+	while (match(TokenType::OR)) {
+		auto right = logicalAnd();
+		left = std::make_unique<BinaryOpNode>(BinaryOp::OR, std::move(left), std::move(right));
+	}
+
+	return left;
+}
+
+std::unique_ptr<ExprNode> Parser::logicalAnd() {
+	// logicalAnd -> logicalNot ( "and" logicalNot )*
+
+	auto left = logicalNot();
+
+	while (match(TokenType::AND)) {
+		auto right = logicalNot();
+		left = std::make_unique<BinaryOpNode>(BinaryOp::AND, std::move(left), std::move(right));
+	}
+
+	return left;
+}
+
+std::unique_ptr<ExprNode> Parser::logicalNot() {
+	// logicalNot -> "not" logicalNot | comparison
+
+	if (match(TokenType::NOT)) {
+		auto expr = logicalNot(); // recursive for multiple 'not's
+		return std::make_unique<UnaryOpNode>(UnaryOp::NOT, std::move(expr));
+	}
+
+	return comparison();
+}
+
+std::unique_ptr<ExprNode> Parser::comparison() {
+	// comparison -> addition (("==" | "!=" | "<" | "<=" | ">" | ">=") addition )*
+
+	auto left = addition();
+
+	while (match(TokenType::EQUAL_EQUAL, TokenType::NOT_EQUAL, TokenType::LESS,
+		TokenType::LESS_EQUAL, TokenType::GREATER, TokenType::GREATER_EQUAL)) {
+		TokenType op = tokens[current - 1].type;
+		auto right = addition();
+
+		BinaryOp binaryOp;
+		switch (op) {
+		case TokenType::EQUAL_EQUAL:
+			binaryOp = BinaryOp::EQUAL;
+			break;
+		case TokenType::NOT_EQUAL:
+			binaryOp = BinaryOp::NOT_EQUAL;
+			break;
+		case TokenType::LESS:
+			binaryOp = BinaryOp::LESS;
+			break;
+		case TokenType::LESS_EQUAL:
+			binaryOp = BinaryOp::LESS_EQUAL;
+			break;
+		case TokenType::GREATER:
+			binaryOp = BinaryOp::GREATER;
+			break;
+		case TokenType::GREATER_EQUAL:
+			binaryOp = BinaryOp::GREATER_EQUAL;
+			break;
+		default:
+			error("Unexpected comparison operator");
+			throw ParseError("Unexpected comparison operator");
+		}
+
+		left = std::make_unique<BinaryOpNode>(binaryOp, std::move(left), std::move(right));
+	}
+
+	return left;
+}
+
+std::unique_ptr<ExprNode> Parser::addition() {
+	// addition -> term (("+" | "-") term)*
 
 	auto left = term();
 
@@ -167,13 +250,13 @@ std::unique_ptr<ExprNode> Parser::expression() {
 		BinaryOp binaryOp = (op == TokenType::PLUS) ? BinaryOp::ADD : BinaryOp::SUB;
 		left = std::make_unique<BinaryOpNode>(binaryOp, std::move(left), std::move(right));
 	}
-
+	
 	return left;
 }
 
 std::unique_ptr<ExprNode> Parser::term() {
 	// term -> factor (("*" | "/" | "%") factor )*
-	// this handles mult, div, modulo (medium precedence)
+
 	auto left = factor();
 
 	while (match(TokenType::STAR, TokenType::SLASH, TokenType::PERCENT)) {
@@ -204,7 +287,6 @@ std::unique_ptr<ExprNode> Parser::term() {
 
 std::unique_ptr<ExprNode> Parser::factor() {
 	// factor -> unary (("**") unary)*
-	// this handles exponentiation (right-associative, higher precedence than mult/div)
 
 	auto left = unary();
 
@@ -219,7 +301,6 @@ std::unique_ptr<ExprNode> Parser::factor() {
 
 std::unique_ptr<ExprNode> Parser::unary() {
 	// unary -> ("-" | "+" || "not") unary | primary
-	// this handles unary operators (minus, plus, not)
 
 	if (match(TokenType::MINUS)) {
 		auto expr = unary();
@@ -229,11 +310,6 @@ std::unique_ptr<ExprNode> Parser::unary() {
 	if (match(TokenType::PLUS)) {
 		auto expr = unary();
 		return std::make_unique<UnaryOpNode>(UnaryOp::PLUS, std::move(expr));
-	}
-
-	if (match(TokenType::NOT)) {
-		auto expr = unary();
-		return std::make_unique<UnaryOpNode>(UnaryOp::NOT, std::move(expr));
 	}
 
 	return primary();
@@ -260,22 +336,19 @@ std::unique_ptr<ExprNode> Parser::primary() {
 	if (check(TokenType::STRING)) {
 		Token token = advance();
 		// The lexer already processed escape sequences, so token.lexeme is the actual string value
-		// TODO: Create a proper StringNode class in the future
-		// For now, we'll return a placeholder (0) since we don't have StringNode yet
-		return std::make_unique<IntegerNode>(0);
+		// TBD: Create StringNode 
+		return std::make_unique<IdentifierNode>(token.lexeme);
 	}
 
 	// Boolean and None literals
 	if (check(TokenType::TRUE)) {
 		advance();
-		// for now, represent True as 1
-		return std::make_unique<IntegerNode>(1);
+		return std::make_unique<BooleanNode>(true);
 	}
 
 	if (check(TokenType::FALSE)) {
 		advance();
-		// for now, represent False as 0
-		return std::make_unique<IntegerNode>(0);
+		return std::make_unique<BooleanNode>(false);
 	}
 
 	if (check(TokenType::NONE)) {

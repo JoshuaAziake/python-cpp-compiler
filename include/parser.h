@@ -50,6 +50,7 @@ private:
 	// Check if we're at the end of tokens
 	bool isAtEnd() const;
 
+	// TBD: add floor division
 	// == grammar rules ==
 	/*
 	* Grammar in EBNF notation:
@@ -60,43 +61,38 @@ private:
 	* printStmt -> "print" "(" expression ")"
 	* exprStmt -> expression NEWLINE?
 	* 
-	* expression -> term ( ("+" | "-") term )*
+	* expression -> logicalOr
+	* logicalOr -> logicalAnd ( "or" logicalAnd )*
+	* logicalAnd -> logicalNot ( "and" logicalNot )*
+	* logicalNot -> "not" logicalNot | comparison
+	* comparison -> addition (("==" | "!=" | "<" | "<=" | ">" | ">=") addition )*
+	* addition -> term ( ("+" | "-") term )*
 	* term -> factor ( ("*" | "/" | "%") factor )*
 	* factor -> unary ( ("**") unary )*
-	* unary -> ("-" | "+" | "not") factor | power
-	* power -> primary
+	* unary -> ("-" | "+") unary | primary
 	* primary -> INTEGER | FLOAT | STRING | TRUE | FALSE | NONE 
 	* | IDENTIFIER | "(" expression ")"
 	*/
 
-	// parse entire program
+	// parse program
 	std::unique_ptr<ProgramNode> program();
 
-	// parse a single statement
+	// parse statements
 	std::unique_ptr<StmtNode> statement();
-
-	// parse assignment statement
 	std::unique_ptr<StmtNode> assignment();
-
-	// parse print statement
 	std::unique_ptr<StmtNode> printStatement();
-
-	// parse expression statement
 	std::unique_ptr<StmtNode> expressionStatement();
 
-	// parse expression (addition/subtraction)
+	// parse expressions
 	std::unique_ptr<ExprNode> expression();
-
-	// parse term (multiplication/division/modulo)
+	std::unique_ptr<ExprNode> logicalOr();
+	std::unique_ptr<ExprNode> logicalAnd();
+	std::unique_ptr<ExprNode> logicalNot();
+	std::unique_ptr<ExprNode> comparison();
+	std::unique_ptr<ExprNode> addition();
 	std::unique_ptr<ExprNode> term();
-
-	// parse factor (exponentiation)
 	std::unique_ptr<ExprNode> factor();
-
-	// parse unary (unary operators)
 	std::unique_ptr<ExprNode> unary();
-
-	// parse primary (literals, identifiers, parentheses)
 	std::unique_ptr<ExprNode> primary();
 
 	// == error handling ==
