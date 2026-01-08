@@ -10,6 +10,7 @@ PROJECT_DIR = C:/Users/Josh/OneDrive/Desktop/python-cpp-compiler/src
 LEXER_SRC = $(PROJECT_DIR)/lexer.cpp
 PARSER_SRC = $(PROJECT_DIR)/parser.cpp
 CODEGEN_SRC = $(PROJECT_DIR)/codegen.cpp 
+AST_SRC = $(PROJECT_DIR)/ast.cpp
 
 # Test executables
 TEST_LEXER = unit/test_lexer
@@ -20,21 +21,21 @@ TEST_CODEGEN = unit/test_codegen
 all: $(TEST_LEXER) $(TEST_PARSER) $(TEST_CODEGEN)
 
 # Build lexer tests
-$(TEST_LEXER): unit/test_lexer.cpp $(LEXER_SRC) $(PROJECT_DIR)/ast.cpp
+$(TEST_LEXER): unit/test_lexer.cpp $(LEXER_SRC) $(AST_SRC)
 	@echo "Building lexer tests..."
-	$(CXX) $(CXXFLAGS) -o $(TEST_LEXER) unit/test_lexer.cpp $(LEXER_SRC) $(PROJECT_DIR)/ast.cpp $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $(TEST_LEXER) unit/test_lexer.cpp $(LEXER_SRC) $(AST_SRC) $(LDFLAGS)
 	@echo "Lexer tests compiled"
 
 # Build parser tests
-$(TEST_PARSER): unit/test_parser.cpp $(PARSER_SRC) $(LEXER_SRC)
+$(TEST_PARSER): unit/test_parser.cpp $(PARSER_SRC) $(LEXER_SRC) $(AST_SRC)
 	@echo "Building parser tests..."
-	$(CXX) $(CXXFLAGS) -o $(TEST_PARSER) unit/test_parser.cpp $(PARSER_SRC) $(LEXER_SRC) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $(TEST_PARSER) unit/test_parser.cpp $(PARSER_SRC) $(LEXER_SRC) $(AST_SRC) $(LDFLAGS)
 	@echo "Parser tests compiled"
 
 # Build codegen tests
-$(TEST_CODEGEN): unit/test_codegen.cpp $(CODEGEN_SRC) $(PARSER_SRC) $(LEXER_SRC)
+$(TEST_CODEGEN): unit/test_codegen.cpp $(CODEGEN_SRC) $(PARSER_SRC) $(LEXER_SRC) $(AST_SRC)
 	@echo "Building code generator tests..."
-	$(CXX) $(CXXFLAGS) -o $(TEST_CODEGEN) unit/test_codegen.cpp $(CODEGEN_SRC) $(PARSER_SRC) $(LEXER_SRC) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $(TEST_CODEGEN) unit/test_codegen.cpp $(CODEGEN_SRC) $(PARSER_SRC) $(LEXER_SRC) $(AST_SRC) $(LDFLAGS)
 	@echo "Code generator tests compiled"
 
 # Run all tests

@@ -3,7 +3,6 @@
 #include "parser.h"
 #include <iostream>
 
-// TBD: write real tests
 void testParser() {
 	std::cout << "=== Testing Parser ===\n\n";
 

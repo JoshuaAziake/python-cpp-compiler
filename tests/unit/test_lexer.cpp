@@ -277,6 +277,46 @@ void testUnderscoreIdentifiers() {
 	std::cout << "PASSED\n";
 }
 
+// test 16: logical operators
+void testLogicalOperators() {
+	std::cout << "Test 17: Locial operators (and, or, not)... ";
+	auto tokens = tokenize("x and y or not z");
+
+	assert(tokens.size() == 7);
+	assert(checkToken(tokens[0], TokenType::IDENTIFIER, "x"));
+	assert(checkToken(tokens[1], TokenType::AND, "and"));
+	assert(checkToken(tokens[2], TokenType::IDENTIFIER, "y"));
+	assert(checkToken(tokens[3], TokenType::OR, "or"));
+	assert(checkToken(tokens[4], TokenType::NOT, "not"));
+	assert(checkToken(tokens[5], TokenType::IDENTIFIER, "z"));
+	assert(checkToken(tokens[6], TokenType::EOF_TOKEN, ""));
+
+	std::cout << "PASSED\n";
+}
+
+// test 17: mixed comparison and logical operators
+void testMixedBooleanOperators() {
+	std::cout << "Test 18: Mixed comparison and logical... ";
+	auto tokens = tokenize("x > 5 and y <= 10 or not z == True");
+
+	assert(tokens.size() == 13);
+	assert(checkToken(tokens[0], TokenType::IDENTIFIER, "x"));
+	assert(checkToken(tokens[1], TokenType::GREATER, ">"));
+	assert(checkToken(tokens[2], TokenType::INTEGER, "5"));
+	assert(checkToken(tokens[3], TokenType::AND, "and"));
+	assert(checkToken(tokens[4], TokenType::IDENTIFIER, "y"));
+	assert(checkToken(tokens[5], TokenType::LESS_EQUAL, "<="));
+	assert(checkToken(tokens[6], TokenType::INTEGER, "10"));
+	assert(checkToken(tokens[7], TokenType::OR, "or"));
+	assert(checkToken(tokens[8], TokenType::NOT, "not"));
+	assert(checkToken(tokens[9], TokenType::IDENTIFIER, "z"));
+	assert(checkToken(tokens[10], TokenType::EQUAL_EQUAL, "=="));
+	assert(checkToken(tokens[11], TokenType::TRUE, "True"));
+	assert(checkToken(tokens[12], TokenType::EOF_TOKEN, ""));
+
+	std::cout << "PASSED\n";
+}
+
 int main() {
 	std::cout << "\n=== Lexer Unit Tests ===\n\n";
 
@@ -296,6 +336,8 @@ int main() {
 		testComparisonOperators();
 		testBooleanKeywords();
 		testUnderscoreIdentifiers();
+		testLogicalOperators();
+		testMixedBooleanOperators();
 
 		std::cout << "\n All lexer tests passed!\n\n";
 		return 0;

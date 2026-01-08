@@ -334,6 +334,176 @@ void testFullProgram() {
 	std::cout << "PASSED\n";
 }
 
+// test 16: boolean literals
+void testBooleanLiterals() {
+	std::cout << "Test 16:; Boolean literals (True and False)... ";
+
+	auto tokens = tokenize("True");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* exprStmt = dynamic_cast<ExprStmtNode*>(program->statements[0].get());
+	auto* boolNode = dynamic_cast<BooleanNode*>(exprStmt->expression.get());
+	assert(boolNode->value == true);
+
+	auto tokens2 = tokenize("False");
+	Parser parser2(tokens2);
+	auto program2 = parser2.parse();
+
+	auto* exprStmt2 = dynamic_cast<ExprStmtNode*>(program2->statements[0].get());
+	auto* boolNode2 = dynamic_cast<BooleanNode*>(exprStmt2->expression.get());
+	assert(boolNode2->value == false);
+
+	std::cout << "PASSED\n";
+}
+
+// test 17: simple comparison
+void testSimpleComparison() {
+	std::cout << "Test 17: Simple comparison (x == 5)... ";
+
+	auto tokens = tokenize("x == 5");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* exprStmt = dynamic_cast<ExprStmtNode*>(program->statements[0].get());
+	auto* binOp = dynamic_cast<BinaryOpNode*>(exprStmt->expression.get());
+
+	assert(binOp->op == BinaryOp::EQUAL);
+
+	auto* left = dynamic_cast<IdentifierNode*>(binOp->left.get());
+	auto* right = dynamic_cast<IntegerNode*>(binOp->right.get());
+	assert(left->name == "x");
+	assert(right->value == 5);
+
+	std::cout << "PASSED\n";
+}
+
+// test 18: all comparison operators
+void testAllComparisonOperators() {
+	std::cout << "Test 18: All comparison operators... ";
+
+	auto tokens = tokenize("x < 5");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* exprStmt = dynamic_cast<ExprStmtNode*>(program->statements[0].get());
+	auto* binOp = dynamic_cast<BinaryOpNode*>(exprStmt->expression.get());
+	assert(binOp->op == BinaryOp::LESS);
+
+	std::cout << "PASSED\n";
+}
+
+// test 19: logical AND operator
+void testLogicalAnd() {
+	std::cout << "Test 19: Logical AND (x and y)... ";
+
+	auto tokens = tokenize("x and y");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* exprStmt = dynamic_cast<ExprStmtNode*>(program->statements[0].get());
+	auto* binOp = dynamic_cast<BinaryOpNode*>(exprStmt->expression.get());
+	
+	assert(binOp->op == BinaryOp::AND);
+
+	auto* left = dynamic_cast<IdentifierNode*>(binOp->left.get());
+	auto* right = dynamic_cast<IdentifierNode*>(binOp->right.get());
+	assert(left->name == "x");
+	assert(right->name == "y");
+
+	std::cout << "PASSED\n";
+}
+
+// test 20: logical OR operator
+void testLogicalOr() {
+	std::cout << "Test 20: Logical OR (x or y)... ";
+
+	auto tokens = tokenize("x or y");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* exprStmt = dynamic_cast<ExprStmtNode*>(program->statements[0].get());
+	auto* binOp = dynamic_cast<BinaryOpNode*>(exprStmt->expression.get());
+
+	assert(binOp->op == BinaryOp::OR);
+
+	std::cout << "PASSED\n";
+}
+
+// test 21: logical NOT operator
+void testLogicalNot() {
+	std::cout << "Test 21: Logical NOT (not x)... ";
+
+	auto tokens = tokenize("not x");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* exprStmt = dynamic_cast<ExprStmtNode*>(program->statements[0].get());
+	auto* unaryOp = dynamic_cast<UnaryOpNode*>(exprStmt->expression.get());
+
+	assert(unaryOp->op == UnaryOp::NOT);
+
+	auto* operand = dynamic_cast<IdentifierNode*>(unaryOp->operand.get());
+	assert(operand->name == "x");
+
+	std::cout << "PASSED\n";
+}
+
+// test 22: boolean operator precedence
+void testBooleanPrecedence() {
+	std::cout << "Test 22: Boolean precedence (x or y and z)... ";
+
+	auto tokens = tokenize("x or y and z");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* exprStmt = dynamic_cast<ExprStmtNode*>(program->statements[0].get());
+	auto* binOp = dynamic_cast<BinaryOpNode*>(exprStmt->expression.get());
+
+	assert(binOp->op == BinaryOp::OR);
+
+	auto* andOp = dynamic_cast<BinaryOpNode*>(binOp->right.get());
+	assert(andOp->op == BinaryOp::AND);
+
+	std::cout << "PASSED\n";
+}
+
+// test 23: comparison with arithmetic
+void testComparisonWithArithmetic() {
+	std::cout << "Test 23: Comparison with arithmetic (x + 5 > 10)... ";
+
+	auto tokens = tokenize("x + 5 > 10");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* exprStmt = dynamic_cast<ExprStmtNode*>(program->statements[0].get());
+	auto* binOp = dynamic_cast<BinaryOpNode*>(exprStmt->expression.get());
+
+	assert(binOp->op == BinaryOp::GREATER);
+
+	auto* addOp = dynamic_cast<BinaryOpNode*>(binOp->left.get());
+	assert(addOp->op == BinaryOp::ADD);
+
+	std::cout << "PASSED\n";
+}
+
+// test 24: complex boolean expression
+void testComplexBooleanExpression() {
+	std::cout << "Test 24: Complex boolean (x > 5 and y < 10 or not z)... ";
+
+	auto tokens = tokenize("x > 5 and y < 10 or not z");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* exprStmt = dynamic_cast<ExprStmtNode*>(program->statements[0].get());
+	
+	// should parse without error
+	assert(exprStmt != nullptr);
+	assert(exprStmt->expression != nullptr);
+
+	std::cout << "PASSED\n";
+}
+
 int main() {
 	std::cout << "\n=== Parser Unit Tests ===\n\n";
 
@@ -353,6 +523,15 @@ int main() {
 		testAllOperators();
 		testComplexExpression();
 		testFullProgram();
+		testBooleanLiterals();
+		testSimpleComparison();
+		testAllComparisonOperators();
+		testLogicalAnd();
+		testLogicalOr();
+		testLogicalNot();
+		testBooleanPrecedence();
+		testComparisonWithArithmetic();
+		testComplexBooleanExpression();
 
 		std::cout << "\nAll parser tests passed!\n\n";
 		return 0;

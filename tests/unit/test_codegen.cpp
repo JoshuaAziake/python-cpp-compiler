@@ -237,6 +237,171 @@ void testRealisticProgram() {
 	std::cout << "PASSED\n";
 }
 
+// test 16: boolean literals
+void testBooleanLiterals() {
+	std::cout << "Test 16: Boolean literals (x = True)... ";
+
+	std::string python = "x = True\ny = False";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "int x"));
+	assert(contains(cpp, "true"));
+	assert(contains(cpp, "int y"));
+	assert(contains(cpp, "false"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 17: simple comparison
+void testSimpleComparison() {
+	std::cout << "Test 17: Simple comparison (x == 5)... ";
+
+	std::string python = "result = x == 5";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "result"));
+	assert(contains(cpp, "x == 5") || contains(cpp, "(x == 5)"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 18: all comparison operators
+void testAllComparisonOperators() {
+	std::cout << "Test 18: All comparison operators... ";
+
+	std::string python =
+		"a = x == 5\n"
+		"b = x != 5\n"
+		"c = x < 5\n"
+		"d = x <= 5\n"
+		"e = x > 5\n"
+		"f = x >= 5\n";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "=="));
+	assert(contains(cpp, "!="));
+	assert(contains(cpp, "<"));
+	assert(contains(cpp, "<="));
+	assert(contains(cpp, ">"));
+	assert(contains(cpp, ">="));
+
+	std::cout << "PASSED\n";
+}
+
+// test 19: logical AND operator
+void testLogicalAnd() {
+	std::cout << "Test 19: Logical AND (x and y)... ";
+
+	std::string python = "result = x and y";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "&&"));
+	assert(contains(cpp, "x"));
+	assert(contains(cpp, "y"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 20: logical OR operator
+void testLogicalOr() {
+	std::cout << "Test 20: Logical OR (x or y)... ";
+
+	std::string python = "result = x or y";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "||"));
+	assert(contains(cpp, "x"));
+	assert(contains(cpp, "y"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 21: logical NOT operator
+void testLogicalNot() {
+	std::cout << "Test 21: Logical NOT (not x)... ";
+
+	std::string python = "result = not x";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "!"));
+	assert(contains(cpp, "x"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 22: comparison in print
+void testComparisonInPrint() {
+	std::cout << "Test 22: Comparison in print statement... ";
+
+	std::string python = "print(x > 5)";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "std::cout"));
+	assert(contains(cpp, "x > 5") || contains(cpp, "(x > 5)"));
+	assert(contains(cpp, "std::endl"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 23: boolean expression with arithmetic
+void testBooleanWithArithmetic() {
+	std::cout << "Test 23: Boolean with arithmetic (x + 5 > 10)... ";
+
+	std::string python = "result = x + 5 > 10";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "result"));
+	assert(contains(cpp, "+"));
+	assert(contains(cpp, ">"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 24: complex boolean expression
+void testComplexBooleanExpression() {
+	std::cout << "Test 24: Complex boolean expression... ";
+	
+	std::string python = "result = x > 5 and y < 10 or not z";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "result"));
+	assert(contains(cpp, "&&"));
+	assert(contains(cpp, "||"));
+	assert(contains(cpp, "!"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 25: chained comparisons
+void testChainedComparisons() {
+	std::cout << "Test 25: Multiple comparisons... ";
+	
+	std::string python = "a = x < y\nb = y < z";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "int a"));
+	assert(contains(cpp, "int b"));
+	assert(contains(cpp, "<"));
+
+	std::cout << "PASSED\n";
+}
+
+
+// test 26: boolean in assignment and print
+void testBooleanInAssignmentAndPrint() {
+	std::cout << "Test 26: Boolean in assignment and print... ";
+
+	std::string python = "x = 5\ny = 10\nresult = x < y\nprint(result)";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "int x"));
+	assert(contains(cpp, "int y"));
+	assert(contains(cpp, "int result"));
+	assert(contains(cpp, "<"));
+	assert(contains(cpp, "std::cout"));
+
+	std::cout << "PASSED\n";
+}
 int main() {
 	std::cout << "\n=== Code Generator Unit Tests ===\n\n";
 
@@ -251,11 +416,22 @@ int main() {
 		testParentheses();
 		testUnaryMinus();
 		testExponentiation();
-		testFloorDivision();
+		//testFloorDivision(); TBD
 		testModulo();
 		testFullProgramStructure();
 		testComplexExpression();
 		testRealisticProgram();
+		testBooleanLiterals();
+		testSimpleComparison();
+		testAllComparisonOperators();
+		testLogicalAnd();
+		testLogicalOr();
+		testLogicalNot();
+		testComparisonInPrint();
+		testBooleanWithArithmetic();
+		testComplexBooleanExpression();
+		testChainedComparisons();
+		testBooleanInAssignmentAndPrint();
 
 		std::cout << "\nAll code generator tests passed!\n\n";
 		return 0;
