@@ -10,12 +10,14 @@ class CodeGenerator {
 public:
 	CodeGenerator();
 
-	// main entry point: generate C++ code from an AST
+	// generate C++ code from an AST
 	std::string generate(const ProgramNode& program);
 
 private:
 	std::stringstream output;
 	int indentLevel;
+
+	// track variable types for proper code generation
 	std::unordered_set<std::string> declaredVariables;
 
 	// helper methods for code generation
@@ -42,6 +44,7 @@ private:
 	std::string identifierToString(const IdentifierNode& node);
 	std::string binaryOpToString(const BinaryOpNode& node);
 	std::string unaryOpToString(const UnaryOpNode& node);
+	std::string booleanToString(const BooleanNode& node);
 
 	// helper to convert BinaryOp enum to C++ operator string
 	std::string getBinaryOperator(BinaryOp op) const;

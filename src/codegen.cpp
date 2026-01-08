@@ -108,20 +108,23 @@ void CodeGenerator::generateExprStmt(const ExprStmtNode& node) {
 
 std::string CodeGenerator::expressionToString(const ExprNode& node) {
 	// use dynamic_cast to determine the actual type of expression
-	if (const auto* integer = dynamic_cast<const IntegerNode*>(&node)) {
-		return integerToString(*integer);
+	if (const auto* intNode = dynamic_cast<const IntegerNode*>(&node)) {
+		return integerToString(*intNode);
 	}
 	else if (const auto* floatNode = dynamic_cast<const FloatNode*>(&node)) {
 		return floatToString(*floatNode);
 	}
-	else if (const auto* identifier = dynamic_cast<const IdentifierNode*>(&node)) {
-		return identifierToString(*identifier);
+	else if (const auto* boolNode = dynamic_cast<const BooleanNode*>(&node)) {
+		return booleanToString(*boolNode);
 	}
-	else if (const auto* binaryOp = dynamic_cast<const BinaryOpNode*>(&node)) {
-		return binaryOpToString(*binaryOp);
+	else if (const auto* identifierNode = dynamic_cast<const IdentifierNode*>(&node)) {
+		return identifierToString(*identifierNode);
 	}
-	else if (const auto* unaryOp = dynamic_cast<const UnaryOpNode*>(&node)) {
-		return unaryOpToString(*unaryOp);
+	else if (const auto* binaryOpNode = dynamic_cast<const BinaryOpNode*>(&node)) {
+		return binaryOpToString(*binaryOpNode);
+	}
+	else if (const auto* unaryOpNode = dynamic_cast<const UnaryOpNode*>(&node)) {
+		return unaryOpToString(*unaryOpNode);
 	}
 	else {
 		throw std::runtime_error("Unknown expression type in code generation");
@@ -154,6 +157,10 @@ std::string CodeGenerator::binaryOpToString(const BinaryOpNode& node) {
 	return "(" + leftCode + " " + op + " " + rightCode + ")";
 }
 
+std::string CodeGenerator::booleanToString(const BooleanNode& node) {
+	return node.value ? "true" : "false";
+}
+
 std::string CodeGenerator::unaryOpToString(const UnaryOpNode& node) {
 	std::string operandCode = expressionToString(*node.operand);
 	std::string op = getUnaryOperator(node.op);
@@ -163,20 +170,20 @@ std::string CodeGenerator::unaryOpToString(const UnaryOpNode& node) {
 
 std::string CodeGenerator::getBinaryOperator(BinaryOp op) const {
 	switch (op) {
-	case BinaryOp::ADD:
-		return "+";
-	case BinaryOp::SUB:
-		return "-";
-	case BinaryOp::MUL:
-		return "*";
-	case BinaryOp::DIV:
-		return "/";
-	case BinaryOp::MOD:
-		return "%";
-	case BinaryOp::FLOOR_DIV:
-		return "/";
-	case BinaryOp::POWER:
-		return "**";
+	case BinaryOp::ADD: return "+";
+	case BinaryOp::SUB: return "-";
+	case BinaryOp::MUL: return "*";
+	case BinaryOp::DIV: return "/";
+	case BinaryOp::MOD: return "%";
+	case BinaryOp::POWER: return "**";
+	case BinaryOp::EQUAL: return "==";
+	case BinaryOp::NOT_EQUAL: return "!=";
+	case BinaryOp::LESS: return "<";
+	case BinaryOp::LESS_EQUAL: return "<=";
+	case BinaryOp::GREATER: return ">";
+	case BinaryOp::GREATER_EQUAL: return ">=";
+	case BinaryOp::AND: return "&&";
+	case BinaryOp::OR: return "||";
 	default:
 		throw std::runtime_error("Unknown binary operator");
 	}
@@ -184,12 +191,9 @@ std::string CodeGenerator::getBinaryOperator(BinaryOp op) const {
 
 std::string CodeGenerator::getUnaryOperator(UnaryOp op) const {
 	switch (op) {
-	case UnaryOp::NEGATE:
-		return "-";
-	case UnaryOp::PLUS:
-		return "+";
-	case UnaryOp::NOT:
-		return "!";
+	case UnaryOp::NEGATE: return "-";
+	case UnaryOp::PLUS: return "+";
+	case UnaryOp::NOT: return "!";
 	default:
 		throw std::runtime_error("Uknown unary operator");
 	}
