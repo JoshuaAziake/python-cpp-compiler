@@ -83,9 +83,16 @@ std::unique_ptr<StmtNode> Parser::statement() {
 		return nullptr;
 	}
 
-	// print statement
 	if (check(TokenType::PRINT)) {
 		return printStatement();
+	}
+
+	if (check(TokenType::IF)) {
+		return ifStatement();
+	}
+
+	if (check(TokenType::WHILE)) {
+		return whileStatement();
 	}
 
 	// assignment or expression statement
@@ -152,6 +159,82 @@ std::unique_ptr<StmtNode> Parser::expressionStatement() {
 	match(TokenType::NEWLINE);
 
 	return std::make_unique<ExprStmtNode>(std::move(expr));
+}
+
+std::vector<std::unique_ptr<StmtNode>> Parser::parseBlock() {
+	// parse an indented block of statements
+	// expects: INDENT statement+ DEDENT
+
+	std::vector<std::unique_ptr<StmtNode>> statements;
+
+	consume(TokenType::INDENT, "Expected indentation for block");
+
+	// parse statements until we hit DEDENT
+	while (!check(TokenType::DEDENT) && !isAtEnd()) {
+		auto stmt = statement();
+		if (stmt) {
+			statements.push_back(std::move(stmt));
+		}
+	}
+
+	consume(TokenType::DEDENT, "Expected dedent after block");
+
+	return statements;
+}
+
+std::unique_ptr<StmtNode> Parser::ifStatement() {
+	// Parse: "if" expression ":" NEWLINE INDENT statement+ DEDENT
+	//			("elif" expression ":" NEWLINE INDENT statement+ DEDENT)*
+	//			("else" ":" NEWLINE INDENT statement+ DEDENT)?
+
+	consume(TokenType::IF, "Expected 'if'");
+
+	auto condition = expression();
+
+	consume(TokenType::COLON, "Expected ':' after if condition");
+	consume(TokenType::NEWLINE, "Expected newline after ':'");
+
+	auto thenBlock = parseBlock();
+
+	auto ifNode = std::make_unique<IfNode>(std::move(condition), std::move(thenBlock));
+
+	// handle elif clauses
+	while (match(TokenType::ELIF)) {
+		auto elifCondition = expression();
+		consume(TokenType::COLON, "Expected ':' after elif condition");
+		consume(TokenType::NEWLINE, "Expected newline after ':'");
+
+		auto elifBlock = parseBlock();
+
+		// create an IfNode for the elif (it's just another if)
+		auto elifNode = std::make_unique<IfNode>(std::move(elifCondition), std::move(elifBlock));
+		ifNode->elifClauses.push_back(std::move(elifNode));
+	}
+
+	// handle else clause
+	if (match(TokenType::ELSE)) {
+		consume(TokenType::COLON, "Expected ':' after else");
+		consume(TokenType::NEWLINE, "Expected newline after ':'");
+
+		ifNode->elseBlock = parseBlock();
+	}
+
+	return ifNode;
+}
+
+std::unique_ptr<StmtNode> Parser::whileStatement() {
+	// Parse: "while" expression ":" NEWLINE INDENT statement+ DEDENT
+
+	consume(TokenType::WHILE, "Expected 'while'");
+
+	auto condition = expression();
+
+	consume(TokenType::COLON, "Expected ':' after while condition");
+	consume(TokenType::NEWLINE, "Expected newline after ':'");
+
+	auto body = parseBlock();
+
+	return std::make_unique<WhileNode>(std::move(condition), std::move(body));
 }
 
 std::unique_ptr<ExprNode> Parser::expression() {

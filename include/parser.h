@@ -57,6 +57,10 @@ private:
 	* 
 	* program -> statement* EOF
 	* statement -> assignment | printStmt | exprStmt
+	* ifStmt -> "if" expression ":" NEWLINE INDENT statement+ DEDENT
+	*				("elif" expression ":" NEWLINE INDENT statement+ DEDENT)*
+	*				("else" ":" NEWLINE INDENT statement+ DEDENT)?
+	* whileStmt -> "while" expression ":" NEWLINE INDENT statement+ DEDENT
 	* assignment -> IDENTIFIER "=" expression
 	* printStmt -> "print" "(" expression ")"
 	* exprStmt -> expression NEWLINE?
@@ -82,6 +86,9 @@ private:
 	std::unique_ptr<StmtNode> assignment();
 	std::unique_ptr<StmtNode> printStatement();
 	std::unique_ptr<StmtNode> expressionStatement();
+	std::unique_ptr<StmtNode> ifStatement();
+	std::unique_ptr<StmtNode> whileStatement();
+	std::vector<std::unique_ptr<StmtNode>> parseBlock();
 
 	// parse expressions
 	std::unique_ptr<ExprNode> expression();

@@ -504,6 +504,118 @@ void testComplexBooleanExpression() {
 	std::cout << "PASSED\n";
 }
 
+// test 25: simple if statement
+void testSimpleIf() {
+	std::cout << "Test 25: Sample if statement... ";
+
+	auto tokens = tokenize("if x > 5:\n		y = 10");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	assert(program->statements.size() == 1);
+	assert(isNodeType<IfNode>(program->statements[0].get()));
+
+	auto* ifNode = dynamic_cast<IfNode*>(program->statements[0].get());
+	assert(ifNode->condition != nullptr);
+	assert(ifNode->thenBlock.size() == 1);
+	assert(ifNode->elifClauses.empty());
+	assert(ifNode->elseBlock.empty());
+
+	std::cout << "PASSED\n";
+}
+
+// test 26: if with else
+void testIfElse() {
+	std::cout << "Test 26: If with else... ";
+
+	auto tokens = tokenize("if x > 5:\n	y = 10\nelse:\n	y = 0");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* ifNode = dynamic_cast<IfNode*>(program->statements[0].get());
+	assert(ifNode->thenBlock.size() == 1);
+	assert(ifNode->elseBlock.size() == 1);
+
+	std::cout << "PASSED\n";
+}
+
+// test 27: if with elif
+void testIfElif() {
+	std::cout << "Test 27: If with elif... ";
+
+	auto tokens = tokenize("if x > 5:\n	y = 10\nelif x > 0:\n	y = 5");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* ifNode = dynamic_cast<IfNode*>(program->statements[0].get());
+	assert(ifNode->elifClauses.size() == 1);
+	assert(ifNode->elseBlock.empty());
+
+	std::cout << "PASSED\n";
+}
+
+// test 28: if with elif and else
+void testIfElifElse() {
+	std::cout << "Test 28: If with elif and else... ";
+
+	auto tokens = tokenize("if x > 5:\n	y = 10\nelif x > 0:\n	y = 5\nelse:\n	y = 0");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* ifNode = dynamic_cast<IfNode*>(program->statements[0].get());
+	assert(ifNode->elifClauses.size() == 1);
+	assert(ifNode->elseBlock.size() == 1);
+
+	std::cout << "PASSED\n";
+}
+
+// test 29: simple while loop
+void testSimpleWhile() {
+	std::cout << "Test 29: Simple while loop... ";
+
+	auto tokens = tokenize("while x > 0:\n	x = x - 1");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	assert(program->statements.size() == 1);
+	assert(isNodeType<WhileNode>(program->statements[0].get()));
+
+	auto* whileNode = dynamic_cast<WhileNode*>(program->statements[0].get());
+	assert(whileNode->condition != nullptr);
+	assert(whileNode->body.size() == 1);
+
+	std::cout << "PASSED\n";
+}
+
+// test 30: nested control flow
+void testNestedControlFlow() {
+	std::cout << "Test 30: Nested control flow... ";
+
+	auto tokens = tokenize("if x > 0:\n	while y > 0:\n		y = y - 1");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* ifNode = dynamic_cast<IfNode*>(program->statements[0].get());
+	assert(ifNode->thenBlock.size() == 1);
+	assert(isNodeType<WhileNode>(ifNode->thenBlock[0].get()));
+
+	std::cout << "PASSED\n";
+}
+
+// test 31: multiple statements in block
+void testMultipleStatementsInBlock() {
+	std::cout << "Test 31: Multiple statements in block... ";
+
+	auto tokens = tokenize("if x > 0:\n	y = 10\n	z = 20\n	print(y)");
+	Parser parser(tokens);
+	auto program = parser.parse();
+
+	auto* ifNode = dynamic_cast<IfNode*>(program->statements[0].get());
+	assert(ifNode->thenBlock.size() == 3);
+
+	std::cout << "PASSED\n";
+}
+
 int main() {
 	std::cout << "\n=== Parser Unit Tests ===\n\n";
 
@@ -532,6 +644,13 @@ int main() {
 		testBooleanPrecedence();
 		testComparisonWithArithmetic();
 		testComplexBooleanExpression();
+		testSimpleIf();
+		testIfElse();
+		testIfElif();
+		testIfElifElse();
+		testSimpleWhile();
+		testNestedControlFlow();
+		testMultipleStatementsInBlock();
 
 		std::cout << "\nAll parser tests passed!\n\n";
 		return 0;
