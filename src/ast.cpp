@@ -135,3 +135,53 @@ void ProgramNode::print(int indent) const {
 		stmt->print(indent + 1);
 	}
 }
+
+// IfNode
+IfNode::IfNode(std::unique_ptr<ExprNode> cond, std::vector<std::unique_ptr<StmtNode>> thenStmts) 
+	: condition(std::move(cond)), thenBlock(std::move(thenStmts)) {}
+
+void IfNode::print(int indent) const {
+	printIndent(indent);
+	std::cout << "If\n";
+	printIndent(indent + 1);
+	std::cout << "Condition:\n";
+	condition->print(indent + 2);
+	printIndent(indent + 1);
+	std::cout << "Then:\n";
+	for (const auto& stmt : thenBlock) {
+		stmt->print(indent + 2);
+	}
+
+	// print elif clauses
+	for (const auto& elifClause : elifClauses) {
+		printIndent(indent + 1);
+		std::cout << "Elif:\n";
+		elifClause->print(indent + 1);
+	}
+
+	// print else block if present
+	if (!elseBlock.empty()) {
+		printIndent(indent + 1);
+		std::cout << "Else:\n";
+		for (const auto& stmt : elseBlock) {
+			stmt->print(indent + 2);
+		}
+	}
+}
+
+// while node
+WhileNode::WhileNode(std::unique_ptr<ExprNode> cond, std::vector<std::unique_ptr<StmtNode>> bodyStmts)
+	: condition(std::move(cond)), body(std::move(bodyStmts)) {}
+
+void WhileNode::print(int indent) const {
+	printIndent(indent);
+	std::cout << "While\n";
+	printIndent(indent + 1);
+	std::cout << "Condition: \n";
+	condition->print(indent + 2);
+	printIndent(indent + 1);
+	std::cout << "Body:\n";
+	for (const auto& stmt : body) {
+		stmt->print(indent + 2);
+	}
+}

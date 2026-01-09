@@ -158,6 +158,30 @@ public:
 	void print(int indent = 0) const override;
 };
 
+// if statement with optional elif and else clauses
+class IfNode : public StmtNode {
+public:
+	std::unique_ptr<ExprNode> condition;
+	std::vector<std::unique_ptr<StmtNode>> thenBlock;
+	std::vector<std::unique_ptr<IfNode>> elifClauses;
+	std::vector<std::unique_ptr<StmtNode>> elseBlock;
+
+	IfNode(std::unique_ptr<ExprNode> cond, std::vector<std::unique_ptr<StmtNode>> thenStmts);
+
+	void print(int indent = 0) const override;
+};
+
+// while loop
+class WhileNode : public StmtNode {
+public:
+	std::unique_ptr<ExprNode> condition;
+	std::vector<std::unique_ptr<StmtNode>> body;
+
+	WhileNode(std::unique_ptr<ExprNode> cond, std::vector<std::unique_ptr<StmtNode>> bodyStmts);
+
+	void print(int indent = 0) const override;
+};
+
 // program: sequence of statements
 class ProgramNode : public ASTNode {
 public:
