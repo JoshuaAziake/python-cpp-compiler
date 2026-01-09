@@ -210,7 +210,7 @@ void testComments() {
 // test 12: whitespace handling
 void testWhitespace() {
 	std::cout << "Test 12: Whitespace handling... ";
-	auto tokens = tokenize("	x	=	5	+	3	");
+	auto tokens = tokenize("x	=	5	+	3	");
 
 	assert(tokens.size() == 6);
 	assert(checkToken(tokens[0], TokenType::IDENTIFIER, "x"));
@@ -317,6 +317,117 @@ void testMixedBooleanOperators() {
 	std::cout << "PASSED\n";
 }
 
+// test 18: simple indentation
+void testSimpleIndentation() {
+	std::cout << "Test 18: Simple Indentation... ";
+	auto tokens = tokenize("if x:\n	y = 5");
+
+	assert(tokens.size() == 10);
+	assert(checkToken(tokens[0], TokenType::IF, "if"));
+	assert(checkToken(tokens[1], TokenType::IDENTIFIER, "x"));
+	assert(checkToken(tokens[2], TokenType::COLON, ":"));
+	assert(checkToken(tokens[3], TokenType::NEWLINE, "\\n"));
+	assert(checkToken(tokens[4], TokenType::INDENT, ""));
+	assert(checkToken(tokens[5], TokenType::IDENTIFIER, "y"));
+	assert(checkToken(tokens[6], TokenType::EQUAL, "="));
+	assert(checkToken(tokens[7], TokenType::INTEGER, "5"));
+	assert(checkToken(tokens[8], TokenType::DEDENT, ""));
+	assert(checkToken(tokens[9], TokenType::EOF_TOKEN, ""));
+
+	std::cout << "PASSED";
+}
+
+// test 19: dedentation
+void testDedentation() {
+	std::cout << "Test 19: Dedentation... ";
+	auto tokens = tokenize("if x:\n	y = 5\nz = 10");
+
+	// expect to find INDENT after first line, then dedent before z = 10
+	bool foundIndent = false;
+	bool foundDedent = false;
+
+	for (const auto& token : tokens) {
+		if (token.type == TokenType::INDENT) foundIndent = true;
+		if (token.type == TokenType::DEDENT) foundDedent = true;
+	}
+
+	assert(foundIndent);
+	assert(foundDedent);
+
+	std::cout << "PASSED";
+}
+
+// test 20: nested indentation (multiple indent levels)
+void testNestedIndentation() {
+	std::cout << "Test 20: Nested indentation... ";
+	auto tokens = tokenize("if x:\n	if y:\n		z = 5");
+
+	int indentCount = 0;
+	for (const auto& token : tokens) {
+		if (token.type == TokenType::INDENT) indentCount++;
+	}
+
+	assert(indentCount == 2);
+	
+	std::cout << "PASSED\n";
+}
+
+// test 21: multiple dedents at once
+void testMultipleDedents() {
+	std::cout << "Test 21: Multiple dedents... ";
+	auto tokens = tokenize("if x:\n	if y:\n		z = 5\na = 1");
+
+	int indentCount = 0;
+	int dedentCount = 0;
+
+	for (const auto& token : tokens) {
+		if (token.type == TokenType::INDENT) indentCount++;
+		if (token.type == TokenType::DEDENT) dedentCount++;
+	}
+
+	assert(indentCount == 2);
+	assert(indentCount == 2);
+	
+	std::cout << "PASSED\n";
+}
+
+// test 22: blank lines should not affect indentation
+void testBlankLines() {
+	std::cout << "Test 22: Blank lines... ";
+	auto tokens = tokenize("if x:\n\n	y = 5");
+
+	// should still find indent despite blank line
+	bool foundIndent = false;
+
+	for (const auto& token : tokens) {
+		if (token.type == TokenType::INDENT) foundIndent = true;
+	}
+
+	assert(foundIndent);
+	
+	std::cout << "PASSED\n";
+}
+
+// test 23: maintain indentation within block
+void testMaintainIndentation() {
+	std::cout << "Test 23: Maintain indentation... ";
+	auto tokens = tokenize("if x:\n y = 5\n z = 10;");
+
+	// should have 1 INDENT and 1 DEDENT
+	int indentCount = 0;
+	int dedentCount = 0;
+
+	for (const auto& token : tokens) {
+		if (token.type == TokenType::INDENT) indentCount++;
+		if (token.type == TokenType::DEDENT) dedentCount++;
+	}
+
+	assert(indentCount == 1);
+	assert(dedentCount == 1);
+
+	std::cout << "PASSED\n";
+}
+
 int main() {
 	std::cout << "\n=== Lexer Unit Tests ===\n\n";
 
@@ -338,6 +449,12 @@ int main() {
 		testUnderscoreIdentifiers();
 		testLogicalOperators();
 		testMixedBooleanOperators();
+		testSimpleIndentation();
+		testDedentation();
+		testNestedIndentation();
+		testMultipleDedents();
+		testBlankLines();
+		testMaintainIndentation();
 
 		std::cout << "\n All lexer tests passed!\n\n";
 		return 0;

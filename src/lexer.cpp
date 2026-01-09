@@ -3,6 +3,10 @@
 
 Lexer::Lexer(const std::string& source) : source(source), position(0), current_line(1), current_column(1) {
 	initializeKeywords();
+
+	indentStack.push_back(0);
+	atLineStart = true;
+	pendingDedents = 0;
 }
 
 void Lexer::initializeKeywords() {
@@ -190,6 +194,12 @@ std::vector<Token> Lexer::tokenize() {
 	std::vector<Token> tokens;
 
 	while (!isAtEnd()) {
+		// handle indentation at the start of each line
+		if (atLineStart) {
+			auto indentTokens = handleIndentation();
+			tokens.insert(tokens.end(), indentTokens.begin(), indentTokens.end());
+		}
+		
 		skipWhitespace();
 		
 		if (isAtEnd()) break;
@@ -206,6 +216,7 @@ std::vector<Token> Lexer::tokenize() {
 		if (c == '\n') {
 			tokens.push_back(makeToken(TokenType::NEWLINE, "\\n"));
 			advance();
+			atLineStart = true;
 			continue;
 		}
 
@@ -390,6 +401,72 @@ std::vector<Token> Lexer::tokenize() {
 				break;
 		}
 	}
+
+	// emit DEDENT tokens for any remaining indentation levels
+	while (indentStack.size() > 1) {
+		indentStack.pop_back();
+		tokens.push_back(makeToken(TokenType::DEDENT, ""));
+	}
+
 	tokens.push_back(makeToken(TokenType::EOF_TOKEN, ""));
+	return tokens;
+}
+
+int Lexer::countIndentation() {
+	int spaces = 0;
+	size_t startPos = position;
+
+	// count spaces and tabs at the start of the line
+	while (!isAtEnd() && (currentChar() == ' ' || currentChar() == '\t')) {
+		if (currentChar() == '\t') {
+			spaces += 8;
+		}
+		else {
+			spaces += 1;
+		}
+		advance();
+	}
+
+	// if we hit a newline or comment, it's a blank line so we ignore indentation
+	if (isAtEnd() || currentChar() == '\n' || currentChar() == '#') {
+		position = startPos;
+		return -1; // signal to skip this line
+	}
+
+	return spaces;
+}
+
+std::vector<Token> Lexer::handleIndentation() {
+	std::vector<Token> tokens;
+
+	int spaces = countIndentation();
+
+	// if this was a blank line or comment, skip indentation handling
+	if (spaces == -1) {
+		return tokens;
+	}
+
+	int currentIndent = indentStack.back();
+
+	if (spaces > currentIndent) {
+		// indentation increased - emit INDENT
+		indentStack.push_back(spaces);
+		tokens.push_back(makeToken(TokenType::INDENT, ""));
+	}
+	else if (spaces < currentIndent) {
+		// indentation decreased - emit DEDENT(s)
+		while (!indentStack.empty() && indentStack.back() > spaces) {
+			indentStack.pop_back();
+			tokens.push_back(makeToken(TokenType::DEDENT, ""));
+		}
+
+		// check for indentation error
+		if (indentStack.empty() || indentStack.back() != spaces) {
+			tokens.push_back(errorToken("Indentation error: inconsistent indentation"));
+		}
+	}
+	// If spaces == currentIndent, no change in indentation, no tokens needed
+
+	atLineStart = false;
 	return tokens;
 }

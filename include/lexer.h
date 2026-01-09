@@ -24,6 +24,10 @@ private:
 	// Python keyword lookup table
 	std::unordered_map<std::string, TokenType> keywords;
 
+	std::vector<int> indentStack;
+	bool atLineStart;
+	int pendingDedents;
+
 	// initialize keywords map
 	void initializeKeywords();
 
@@ -60,6 +64,10 @@ private:
 	bool isDigit(char c) const;
 	bool isAlpha(char c) const;
 	bool isAlphaNumeric(char c) const;
+
+	// indentation handling
+	std::vector<Token> handleIndentation();
+	int countIndentation();
 };
 
 #endif
