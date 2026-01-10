@@ -36,6 +36,8 @@ private:
 	void generateAssignment(const AssignmentNode& node);
 	void generatePrint(const PrintNode& node);
 	void generateExprStmt(const ExprStmtNode& node);
+	void generateIf(const IfNode& node);
+	void generateWhile(const WhileNode& node);
 
 	// specific expression generators
 	std::string expressionToString(const ExprNode& node);

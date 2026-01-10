@@ -74,7 +74,7 @@ void testMultipleAssignments() {
 void testVariableReference() {
 	std::cout << "Test 4: Variable reference (z = x + y)... ";
 
-	std::string python = "x = 5\n y = 10\nz = x + y";
+	std::string python = "x = 5\ny = 10\nz = x + y";
 	std::string cpp = compileToCPP(python);
 
 	assert(contains(cpp, "z = (x + y)"));
@@ -402,6 +402,94 @@ void testBooleanInAssignmentAndPrint() {
 
 	std::cout << "PASSED\n";
 }
+
+// test 27: simple if statement
+void testSimpleIf() {
+	std::cout << "Test 27: Simple if statement... ";
+
+	std::string python = "if x > 5:\n	y = 10";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "if"));
+	assert(contains(cpp, "x > 5"));
+	assert(contains(cpp, "y = 10"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 28: if with else
+void testIfElse() {
+	std::cout << "Test 28: If with else... ";
+
+	std::string python = "if x > 5:\n	y = 10\nelse:\n	y = 0";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "if"));
+	assert(contains(cpp, "else"));
+	assert(contains(cpp, "y = 10"));
+	assert(contains(cpp, "y = 0"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 29: if with elif
+void testIfElif() {
+	std::cout << "Test 29: If with elif... ";
+
+	std::string python = "if x > 5:\n	y = 10\nelif x > 0:\n	y = 5";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "if"));
+	assert(contains(cpp, "else if"));
+	assert(contains(cpp, "x > 5"));
+	assert(contains(cpp, "x > 0"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 30: while loop
+void testWhileLoop() {
+	std::cout << "Test 30: While loop... ";
+
+	std::string python = "while x > 0:\n	x = x - 1";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "while"));
+	assert(contains(cpp, "x > 0"));
+	assert(contains(cpp, "x = (x - 1)"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 31: nested control flow
+void testNestedControlFlow() {
+	std::cout << "Test 31: Nested control flow... ";
+
+	std::string python = "if x > 0:\n	while y > 0:\n		y = y - 1";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "if"));
+	assert(contains(cpp, "while"));
+	assert(contains(cpp, "x > 0"));
+	assert(contains(cpp, "y > 0"));
+
+	std::cout << "PASSED\n";
+}
+
+// test 32: if-elif-else chain
+void testCompleteIfChain() {
+	std::cout << "Test 21: Complete if-elif-else chain... ";
+
+	std::string python = "if x > 10:\n	y = 3\nelif x > 5:\n	y = 2\nelif x > 0:\n	y = 1\nelse:\n	y = 0";
+	std::string cpp = compileToCPP(python);
+
+	assert(contains(cpp, "if"));
+	assert(contains(cpp, "else if"));
+	assert(contains(cpp, "else"));
+
+	std::cout << "PASSED\n";
+}
+
 int main() {
 	std::cout << "\n=== Code Generator Unit Tests ===\n\n";
 
@@ -432,6 +520,12 @@ int main() {
 		testComplexBooleanExpression();
 		testChainedComparisons();
 		testBooleanInAssignmentAndPrint();
+		testSimpleIf();
+		testIfElse();
+		testIfElif();
+		testWhileLoop();
+		testNestedControlFlow();
+		testCompleteIfChain();
 
 		std::cout << "\nAll code generator tests passed!\n\n";
 		return 0;

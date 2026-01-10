@@ -75,6 +75,12 @@ void CodeGenerator::generateStatement(const StmtNode& node) {
 	else if (const auto* exprStmt = dynamic_cast<const ExprStmtNode*>(&node)) {
 		generateExprStmt(*exprStmt);
 	}
+	else if (const auto* ifStmt = dynamic_cast<const IfNode*>(&node)) {
+		generateIf(*ifStmt);
+	}
+	else if (const auto* whileStmt = dynamic_cast<const WhileNode*>(&node)) {
+		generateWhile(*whileStmt);
+	}
 	else {
 		throw std::runtime_error("Unknown statement type in code generation.");
 	}
@@ -104,6 +110,64 @@ void CodeGenerator::generatePrint(const PrintNode& node) {
 void CodeGenerator::generateExprStmt(const ExprStmtNode& node) {
 	std::string exprCode = expressionToString(*node.expression);
 	emitLine(exprCode + ";");
+}
+
+void CodeGenerator::generateIf(const IfNode& node) {
+	// Generate: if (condition) { ... }
+	std::string condCode = expressionToString(*node.condition);
+	emitLine("if (" + condCode + ") {");
+	increaseIndent();
+
+	// generate then block
+	for (const auto& stmt : node.thenBlock) {
+		generateStatement(*stmt);
+	}
+
+	decreaseIndent();
+	emit(getIndent() + "}");
+
+	// generate elif clauses (as else if in C++)
+	for (const auto& elifClause : node.elifClauses) {
+		std::string elifCondCode = expressionToString(*elifClause->condition);
+		emit(" else if (" + elifCondCode + ") {\n");
+		increaseIndent();
+
+		for (const auto& stmt : elifClause->thenBlock) {
+			generateStatement(*stmt);
+		}
+		decreaseIndent();
+		emit(getIndent() + "}");
+	}
+
+	// generate else block
+	if (!node.elseBlock.empty()) {
+		emit(" else {\n");
+		increaseIndent();
+
+		for (const auto& stmt : node.elseBlock) {
+			generateStatement(*stmt);
+		}
+
+		decreaseIndent();
+		emitLine("}");
+	}
+	else {
+		emit("\n");
+	}
+}
+
+void CodeGenerator::generateWhile(const WhileNode& node) {
+	// generate: while (condition) { ... }
+	std::string condCode = expressionToString(*node.condition);
+	emitLine("while (" + condCode + ") {");
+	increaseIndent();
+
+	for (const auto& stmt : node.body) {
+		generateStatement(*stmt);
+	}
+
+	decreaseIndent();
+	emitLine("}");
 }
 
 std::string CodeGenerator::expressionToString(const ExprNode& node) {
