@@ -79,7 +79,7 @@ std::unique_ptr<StmtNode> Parser::statement() {
 	// skip newlines at start of statement
 	while(match(TokenType::NEWLINE)){}
 
-	if (isAtEnd()) {
+	if (isAtEnd() || check(TokenType::DEDENT)) {
 		return nullptr;
 	}
 

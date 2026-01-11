@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 
 		// compile C++ code
 		std::cout << "\n=== Compiling C++ Code ===\n";
-		std::string compileCmd = "g++ -o output " + outputFile;
+		std::string compileCmd = "g++ -static -o output " + outputFile;
 		int result = system(compileCmd.c_str());
 
 		if (result == 0) {
