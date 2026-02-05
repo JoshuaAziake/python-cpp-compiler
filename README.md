@@ -12,9 +12,6 @@
 - Multi-statement programs
 
 ## TODO List
-- Comparison operators
-- Boolean literals and logic
-- Control flow
 - Function definitions and calls
 - Lists and strings
 - String literals with escape sequences
